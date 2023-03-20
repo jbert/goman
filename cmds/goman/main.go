@@ -34,6 +34,7 @@ func main() {
 		maxTick := w / 2
 
 		for {
+			clearImage(img, w, h)
 			generateImage(img, w, h, tick)
 			canvas.Refresh(fyneImg)
 			tick++
@@ -51,8 +52,11 @@ func makeImage(w, h int) *image.RGBA {
 	return img
 }
 
-func generateImage(img *image.RGBA, w, h, tick int) {
+func clearImage(img *image.RGBA, w, h int) {
 	draw.Draw(img, img.Bounds(), image.Black, image.ZP, draw.Src)
+}
+
+func generateImage(img *image.RGBA, w, h, tick int) {
 	x2 := w / 2
 	y2 := h / 2
 	c := color.RGBA{255, 0, 0, 255}
