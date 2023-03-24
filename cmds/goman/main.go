@@ -37,11 +37,10 @@ func main() {
 
 		for {
 			clearImage(img)
-			generateImage(img, tick)
+			generateImage(img, tick, maxTick)
 			canvas.Refresh(fyneImg)
 			tick++
 			tick = tick % maxTick
-			break
 			<-ch
 		}
 	}
@@ -66,23 +65,18 @@ func clearImage(img *image.RGBA) {
 	draw.Draw(img, img.Bounds(), image.Black, image.ZP, draw.Src)
 }
 
-func generateImage(img *image.RGBA, tick int) {
+func generateImage(img *image.RGBA, tick, maxTick int) {
 	m := NewMandel()
+	fmt.Printf("%s: generate [%d/%d]\n", time.Now(), tick, maxTick)
+	offset := float64(tick) / float64(maxTick)
+	m.Xlo += offset
+	m.Xhi += offset
 	m.Draw(img)
-	/*
-		x2 := w / 2
-		y2 := h / 2
-		c := color.RGBA{255, 0, 0, 255}
-		offset := tick - w/4
-		for i := -w / 4; i < w/4; i++ {
-			img.Set(x2+i+offset, y2+i, c)
-		}
-	*/
 }
 
 func (m *Mandel) Draw(img *image.RGBA) {
 	w, h := widthHeight(img)
-	fmt.Printf("%s: draw %d\n", time.Now())
+	fmt.Printf("%s: draw\n", time.Now())
 
 	xw := m.Xhi - m.Xlo
 	yw := m.Yhi - m.Ylo
