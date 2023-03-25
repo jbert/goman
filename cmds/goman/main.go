@@ -51,7 +51,7 @@ func main() {
 			m.UpdateMagMap(animTick, tickMax)
 			clearImage(img)
 			m.Draw(animTick, tickMax, img)
-			ui.Refresh()
+			canvasImage.Refresh()
 			animTick = (animTick + 1) % tickMax
 			<-ch
 		}
