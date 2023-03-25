@@ -8,13 +8,19 @@ DONE - justify the labels on the entry boxes
     - add tick to the opts structure
     - make mandel reference it
 
-- use xlo + xwidth instead of xlo and xhi (better update behaviour)
+DONE - use xlo + xwidth instead of xlo and xhi (better update behaviour)
 
 - try running on mobile and/or wasm
 
 - provide some control (or presets) for colour animation
 
 - show magnitude at mouse co-ords
+
+- respond to mouse clicks
+    - left click to recentre
+
+- add zoom button + and -
+    - also left/right/up/down?
 
 - set pixel w+h based on window size
 

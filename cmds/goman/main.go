@@ -77,6 +77,15 @@ func main() {
 }
 
 func makeUIControls(m *Mandel) fyne.CanvasObject {
+	items := make([]fyne.CanvasObject, 0)
+
+	items = append(items, widget.NewLabel("Settings"))
+	items = append(items, makeOptionsForm(m))
+
+	return container.New(layout.NewVBoxLayout(), items...)
+}
+
+func makeOptionsForm(m *Mandel) fyne.CanvasObject {
 
 	formData := binding.BindStruct(m)
 	keys := formData.Keys()
@@ -163,17 +172,14 @@ func (m *Mandel) UpdateMagMap(animTick, tickMax int) {
 	h := len(m.magMap)
 	w := len(m.magMap[0])
 
-	xw := m.Xhi - m.Xlo
-	yw := m.Yhi - m.Ylo
-
 	wg := sync.WaitGroup{}
 	wg.Add(h)
 	for j := 0; j < h; j++ {
 		j := j
 		go func() {
-			y := m.Ylo + (yw * float64(j) / float64(h))
+			y := m.Y + (m.Height * float64(j) / float64(h))
 			for i := 0; i < w; i++ {
-				x := m.Xlo + (xw * float64(i) / float64(w))
+				x := m.X + (m.Width * float64(i) / float64(w))
 				m.magMap[j][i] = m.calcPoint(x, y)
 			}
 			wg.Done()
@@ -185,10 +191,10 @@ func (m *Mandel) UpdateMagMap(animTick, tickMax int) {
 type Mandel struct {
 	magMap [][]float64
 
-	Steps     int
-	Xlo, Xhi  float64
-	Ylo, Yhi  float64
-	Threshold float64
+	Steps         int
+	X, Y          float64
+	Width, Height float64
+	Threshold     float64
 }
 
 func NewMandel(w, h int) *Mandel {
@@ -196,10 +202,10 @@ func NewMandel(w, h int) *Mandel {
 		magMap: make([][]float64, h),
 
 		Steps:     100,
-		Xlo:       -2.5,
-		Xhi:       1.0,
-		Ylo:       -1.5,
-		Yhi:       1.5,
+		X:         -2.5,
+		Width:     3.5,
+		Y:         -1.5,
+		Height:    3.0,
 		Threshold: 1000,
 	}
 	for j := 0; j < h; j++ {
