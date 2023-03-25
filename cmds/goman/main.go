@@ -140,13 +140,13 @@ func (m *Mandel) UpdateMagMap(animTick, tickMax int) {
 	yw := m.Yhi - m.Ylo
 
 	wg := sync.WaitGroup{}
-	wg.Add(w)
-	for i := 0; i < w; i++ {
-		i := i
+	wg.Add(h)
+	for j := 0; j < h; j++ {
+		j := j
 		go func() {
-			x := m.Xlo + (xw * float64(i) / float64(w))
-			for j := 0; j < h; j++ {
-				y := m.Ylo + (yw * float64(j) / float64(h))
+			y := m.Ylo + (yw * float64(j) / float64(h))
+			for i := 0; i < w; i++ {
+				x := m.Xlo + (xw * float64(i) / float64(w))
 				m.MagMap[j][i] = m.calcPoint(x, y)
 			}
 			wg.Done()
