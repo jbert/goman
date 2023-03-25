@@ -31,12 +31,12 @@ func main() {
 	canvasImage.SetMinSize(fyne.Size{float32(w), float32(h)})
 	//	canvasImage.FillMode = canvas.ImageFillOriginal
 
-	m := NewMandel()
+	m := NewMandel(w, h)
 	uiControls := makeUIControls(m)
 
 	ui := container.New(layout.NewHBoxLayout(), canvasImage, uiControls)
 
-	tickDur := 100 * time.Millisecond
+	tickDur := 10 * time.Millisecond
 	ticker := time.NewTicker(tickDur)
 
 	win := a.NewWindow(title)
@@ -47,9 +47,10 @@ func main() {
 	animTick := 0
 	animateImage := func(img *image.RGBA, w, h int, ch <-chan time.Time) {
 		for {
+			m.UpdateMagMap(animTick, tickMax)
 			clearImage(img)
 			m.Draw(animTick, tickMax, img)
-			canvasImage.Refresh()
+			//			canvasImage.Refresh()
 			ui.Refresh()
 			animTick = (animTick + 1) % tickMax
 			<-ch
@@ -119,6 +120,18 @@ func (m *Mandel) Draw(animTick, tickMax int, img *image.RGBA) {
 	w, h := widthHeight(img)
 	fmt.Printf("%s: draw\n", time.Now())
 
+	for i := 0; i < w; i++ {
+		for j := 0; j < h; j++ {
+			c := magnitudeToColour(animTick, tickMax, m.MagMap[j][i])
+			img.Set(i, j, c)
+		}
+	}
+}
+
+func (m *Mandel) UpdateMagMap(animTick, tickMax int) {
+	h := len(m.MagMap)
+	w := len(m.MagMap[0])
+
 	xw := m.Xhi - m.Xlo
 	yw := m.Yhi - m.Ylo
 
@@ -126,22 +139,24 @@ func (m *Mandel) Draw(animTick, tickMax int, img *image.RGBA) {
 		for j := 0; j < h; j++ {
 			x := m.Xlo + (xw * float64(i) / float64(w))
 			y := m.Ylo + (yw * float64(j) / float64(h))
-			mag := m.calcPoint(x, y)
-			c := magnitudeToColour(animTick, tickMax, mag)
-			img.Set(i, j, c)
+			m.MagMap[j][i] = m.calcPoint(x, y)
 		}
 	}
 }
 
 type Mandel struct {
+	MagMap [][]float64
+
 	Steps     int
 	Xlo, Xhi  float64
 	Ylo, Yhi  float64
 	Threshold float64
 }
 
-func NewMandel() *Mandel {
-	return &Mandel{
+func NewMandel(w, h int) *Mandel {
+	m := &Mandel{
+		MagMap: make([][]float64, h),
+
 		Steps:     100,
 		Xlo:       -2.5,
 		Xhi:       1.0,
@@ -149,6 +164,10 @@ func NewMandel() *Mandel {
 		Yhi:       1.5,
 		Threshold: 1000,
 	}
+	for j := 0; j < h; j++ {
+		m.MagMap[j] = make([]float64, w)
+	}
+	return m
 }
 
 func (m *Mandel) calcPoint(x, y float64) float64 {
