@@ -1,5 +1,7 @@
 DONE - use magnitude for colour scaling
 
+- add double-buffering for image update
+
 - provide some control (or presets) for colour animation
 
 - show magnitude at mouse co-ords
@@ -13,4 +15,4 @@ DONE - use magnitude for colour scaling
 DONE - interaction between refresh and high number of steps causes
   flickering/blanking. Can we do better?
 
-- use a (fixed) number of goros to parallelise the mandel calc
+DONE - use a (fixed) number of goros to parallelise the mandel calc

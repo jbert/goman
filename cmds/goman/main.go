@@ -7,6 +7,7 @@ import (
 	"image/draw"
 	"math"
 	"math/cmplx"
+	"sync"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -36,7 +37,7 @@ func main() {
 
 	ui := container.New(layout.NewHBoxLayout(), canvasImage, uiControls)
 
-	tickDur := 10 * time.Millisecond
+	tickDur := 100 * time.Millisecond
 	ticker := time.NewTicker(tickDur)
 
 	win := a.NewWindow(title)
@@ -50,7 +51,6 @@ func main() {
 			m.UpdateMagMap(animTick, tickMax)
 			clearImage(img)
 			m.Draw(animTick, tickMax, img)
-			//			canvasImage.Refresh()
 			ui.Refresh()
 			animTick = (animTick + 1) % tickMax
 			<-ch
@@ -129,19 +129,30 @@ func (m *Mandel) Draw(animTick, tickMax int, img *image.RGBA) {
 }
 
 func (m *Mandel) UpdateMagMap(animTick, tickMax int) {
+	//	start := time.Now()
+	//	defer func() {
+	//		fmt.Printf("Update took %s\n", time.Since(start))
+	//	}()
 	h := len(m.MagMap)
 	w := len(m.MagMap[0])
 
 	xw := m.Xhi - m.Xlo
 	yw := m.Yhi - m.Ylo
 
+	wg := sync.WaitGroup{}
+	wg.Add(w)
 	for i := 0; i < w; i++ {
-		for j := 0; j < h; j++ {
+		i := i
+		go func() {
 			x := m.Xlo + (xw * float64(i) / float64(w))
-			y := m.Ylo + (yw * float64(j) / float64(h))
-			m.MagMap[j][i] = m.calcPoint(x, y)
-		}
+			for j := 0; j < h; j++ {
+				y := m.Ylo + (yw * float64(j) / float64(h))
+				m.MagMap[j][i] = m.calcPoint(x, y)
+			}
+			wg.Done()
+		}()
 	}
+	wg.Wait()
 }
 
 type Mandel struct {
