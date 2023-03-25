@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"math"
 	"math/cmplx"
 	"time"
 
@@ -42,12 +43,15 @@ func main() {
 	win.SetContent(ui)
 	win.Resize(fyne.NewSize(float32(w), float32(h)))
 
+	tickMax := 100
+	animTick := 0
 	animateImage := func(img *image.RGBA, w, h int, ch <-chan time.Time) {
 		for {
 			clearImage(img)
-			m.Draw(img)
+			m.Draw(animTick, tickMax, img)
 			canvasImage.Refresh()
 			ui.Refresh()
+			animTick = (animTick + 1) % tickMax
 			<-ch
 		}
 	}
@@ -98,7 +102,20 @@ func clearImage(img *image.RGBA) {
 	draw.Draw(img, img.Bounds(), image.Black, image.ZP, draw.Src)
 }
 
-func (m *Mandel) Draw(img *image.RGBA) {
+func magnitudeToColour(animTick, tickMax int, mag float64) color.Color {
+	animF := float64(animTick) / float64(tickMax)
+	mag = math.Log(mag / animF)
+	scale := 1.0
+	f := math.Min(mag, scale) // 0 -> scale
+	umax := 255.0 / scale
+
+	cr := uint8(128 * animTick)
+	cb := uint8(10 * (1.0 - animTick))
+	y := uint8(umax * f)
+	return color.YCbCr{y, cb, cr}
+}
+
+func (m *Mandel) Draw(animTick, tickMax int, img *image.RGBA) {
 	w, h := widthHeight(img)
 	fmt.Printf("%s: draw\n", time.Now())
 
@@ -110,11 +127,7 @@ func (m *Mandel) Draw(img *image.RGBA) {
 			x := m.Xlo + (xw * float64(i) / float64(w))
 			y := m.Ylo + (yw * float64(j) / float64(h))
 			mag := m.calcPoint(x, y)
-			//			fmt.Printf("x %v y %v mag %v\n", x, y, mag)
-			c := color.RGBA{0, 0, 0, 255}
-			if mag < 1.0 {
-				c.R = 255
-			}
+			c := magnitudeToColour(animTick, tickMax, mag)
 			img.Set(i, j, c)
 		}
 	}
