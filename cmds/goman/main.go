@@ -73,6 +73,12 @@ func makeUIControls(m *Mandel) fyne.CanvasObject {
 	yhiEntry := widget.NewEntryWithData(binding.FloatToString(binding.BindFloat(&(m.Yhi))))
 	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("yhi"), yhiEntry))
 
+	thresholdEntry := widget.NewEntryWithData(binding.FloatToString(binding.BindFloat(&(m.Threshold))))
+	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("threshold"), thresholdEntry))
+
+	stepsEntry := widget.NewEntryWithData(binding.IntToString(binding.BindInt(&(m.Steps))))
+	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("steps"), stepsEntry))
+
 	return container.New(layout.NewVBoxLayout(), items...)
 }
 
