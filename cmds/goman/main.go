@@ -26,18 +26,27 @@ func main() {
 	w := 640
 	h := 480
 
-	img := makeImage(w, h)
-	canvasImage := canvas.NewImageFromImage(img)
+	imgs := make([]*image.RGBA, 2)
+	imgs[0] = makeImage(w, h)
+	imgs[1] = makeImage(w, h)
+	currentImg := 0
+
+	canvasImages := make([]*canvas.Image, 2)
+	canvasImages[0] = canvas.NewImageFromImage(imgs[0])
 	// Unclear why setting FillMode doesn't achieve this
-	canvasImage.SetMinSize(fyne.Size{float32(w), float32(h)})
+	canvasImages[0].SetMinSize(fyne.Size{float32(w), float32(h)})
 	//	canvasImage.FillMode = canvas.ImageFillOriginal
+	canvasImages[1] = canvas.NewImageFromImage(imgs[1])
+	canvasImages[1].SetMinSize(fyne.Size{float32(w), float32(h)})
+	canvasImages[0].Show()
+	canvasImages[1].Hide()
 
 	m := NewMandel(w, h)
 	uiControls := makeUIControls(m)
 
-	ui := container.New(layout.NewHBoxLayout(), canvasImage, uiControls)
+	ui := container.New(layout.NewHBoxLayout(), canvasImages[0], canvasImages[1], uiControls)
 
-	tickDur := 100 * time.Millisecond
+	tickDur := 10 * time.Millisecond
 	ticker := time.NewTicker(tickDur)
 
 	win := a.NewWindow(title)
@@ -46,17 +55,23 @@ func main() {
 
 	tickMax := 100
 	animTick := 0
-	animateImage := func(img *image.RGBA, w, h int, ch <-chan time.Time) {
+	animateImage := func(w, h int, ch <-chan time.Time) {
 		for {
+			lastImg := currentImg
+
+			currentImg = (currentImg + 1) % 2
 			m.UpdateMagMap(animTick, tickMax)
-			clearImage(img)
-			m.Draw(animTick, tickMax, img)
-			canvasImage.Refresh()
+			clearImage(imgs[currentImg])
+			m.Draw(animTick, tickMax, imgs[currentImg])
+
+			canvasImages[lastImg].Hide()
+			canvasImages[currentImg].Show()
+			ui.Refresh()
 			animTick = (animTick + 1) % tickMax
 			<-ch
 		}
 	}
-	go animateImage(img, w, h, ticker.C)
+	go animateImage(w, h, ticker.C)
 
 	win.ShowAndRun()
 }

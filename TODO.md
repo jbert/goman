@@ -1,6 +1,6 @@
 DONE - use magnitude for colour scaling
 
-- add double-buffering for image update
+DONE - add double-buffering for image update
 
 - provide some control (or presets) for colour animation
 
