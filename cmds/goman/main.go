@@ -11,6 +11,10 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
@@ -20,15 +24,22 @@ func main() {
 	w := 640
 	h := 480
 
-	win := a.NewWindow(title)
-
 	img := makeImage(w, h)
+	canvasImage := canvas.NewImageFromImage(img)
+	// Unclear why setting FillMode doesn't achieve this
+	canvasImage.SetMinSize(fyne.Size{float32(w), float32(h)})
+	//	canvasImage.FillMode = canvas.ImageFillOriginal
+
+	m := NewMandel()
+	uiControls := makeUIControls(m)
+
+	ui := container.New(layout.NewHBoxLayout(), canvasImage, uiControls)
 
 	tickDur := 100 * time.Millisecond
 	ticker := time.NewTicker(tickDur)
 
-	fyneImg := canvas.NewImageFromImage(img)
-	win.SetContent(fyneImg)
+	win := a.NewWindow(title)
+	win.SetContent(ui)
 	win.Resize(fyne.NewSize(float32(w), float32(h)))
 
 	animateImage := func(img *image.RGBA, w, h int, ch <-chan time.Time) {
@@ -37,8 +48,9 @@ func main() {
 
 		for {
 			clearImage(img)
-			generateImage(img, tick, maxTick)
-			canvas.Refresh(fyneImg)
+			generateImage(m, img, tick, maxTick)
+			canvasImage.Refresh()
+			ui.Refresh()
 			tick++
 			tick = tick % maxTick
 			<-ch
@@ -47,6 +59,26 @@ func main() {
 	go animateImage(img, w, h, ticker.C)
 
 	win.ShowAndRun()
+}
+
+func makeUIControls(m *Mandel) fyne.CanvasObject {
+	var items []fyne.CanvasObject
+
+	items = append(items, widget.NewLabel("Settings"))
+
+	xloEntry := widget.NewEntryWithData(binding.FloatToString(binding.BindFloat(&(m.Xlo))))
+	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("xlo"), xloEntry))
+
+	xhiEntry := widget.NewEntryWithData(binding.FloatToString(binding.BindFloat(&(m.Xhi))))
+	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("xhi"), xhiEntry))
+
+	yloEntry := widget.NewEntryWithData(binding.FloatToString(binding.BindFloat(&(m.Ylo))))
+	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("ylo"), yloEntry))
+
+	yhiEntry := widget.NewEntryWithData(binding.FloatToString(binding.BindFloat(&(m.Yhi))))
+	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("yhi"), yhiEntry))
+
+	return container.New(layout.NewVBoxLayout(), items...)
 }
 
 func widthHeight(img image.Image) (int, int) {
@@ -65,8 +97,7 @@ func clearImage(img *image.RGBA) {
 	draw.Draw(img, img.Bounds(), image.Black, image.ZP, draw.Src)
 }
 
-func generateImage(img *image.RGBA, tick, maxTick int) {
-	m := NewMandel()
+func generateImage(m *Mandel, img *image.RGBA, tick, maxTick int) {
 	fmt.Printf("%s: generate [%d/%d]\n", time.Now(), tick, maxTick)
 	offset := float64(tick) / float64(maxTick)
 	m.Xlo += offset
