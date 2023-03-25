@@ -43,16 +43,11 @@ func main() {
 	win.Resize(fyne.NewSize(float32(w), float32(h)))
 
 	animateImage := func(img *image.RGBA, w, h int, ch <-chan time.Time) {
-		tick := 0
-		maxTick := w / 2
-
 		for {
 			clearImage(img)
-			generateImage(m, img, tick, maxTick)
+			m.Draw(img)
 			canvasImage.Refresh()
 			ui.Refresh()
-			tick++
-			tick = tick % maxTick
 			<-ch
 		}
 	}
@@ -95,14 +90,6 @@ func makeImage(w, h int) *image.RGBA {
 
 func clearImage(img *image.RGBA) {
 	draw.Draw(img, img.Bounds(), image.Black, image.ZP, draw.Src)
-}
-
-func generateImage(m *Mandel, img *image.RGBA, tick, maxTick int) {
-	fmt.Printf("%s: generate [%d/%d]\n", time.Now(), tick, maxTick)
-	offset := float64(tick) / float64(maxTick)
-	m.Xlo += offset
-	m.Xhi += offset
-	m.Draw(img)
 }
 
 func (m *Mandel) Draw(img *image.RGBA) {
