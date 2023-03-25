@@ -22,6 +22,8 @@ DONE - use xlo + xwidth instead of xlo and xhi (better update behaviour)
 DONE - add zoom button + and -
     NO - also left/right/up/down?
 
+- hook mouse wheel scroll for zoom
+
 - set pixel w+h based on window size
 
 - add palette-rotating animation option
