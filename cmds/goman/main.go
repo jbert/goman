@@ -82,6 +82,9 @@ func makeUIControls(m *Mandel) fyne.CanvasObject {
 	items = append(items, widget.NewLabel("Settings"))
 	items = append(items, makeOptionsForm(m))
 
+	items = append(items, widget.NewButton("+", m.ZoomIn))
+	items = append(items, widget.NewButton("-", m.ZoomOut))
+
 	return container.New(layout.NewVBoxLayout(), items...)
 }
 
@@ -152,6 +155,20 @@ func magnitudeToColour(animTick, tickMax int, mag float64) color.Color {
 	return color.YCbCr{y, cb, cr}
 }
 
+func (m *Mandel) ZoomOut() {
+	x, y := m.getCentre()
+	m.Width *= m.zoomScale
+	m.Height *= m.zoomScale
+	m.setCentre(x, y)
+}
+
+func (m *Mandel) ZoomIn() {
+	x, y := m.getCentre()
+	m.Width /= m.zoomScale
+	m.Height /= m.zoomScale
+	m.setCentre(x, y)
+}
+
 func (m *Mandel) Draw(animTick, tickMax int, img *image.RGBA) {
 	w, h := widthHeight(img)
 	fmt.Printf("%s: draw\n", time.Now())
@@ -189,7 +206,8 @@ func (m *Mandel) UpdateMagMap(animTick, tickMax int) {
 }
 
 type Mandel struct {
-	magMap [][]float64
+	magMap    [][]float64
+	zoomScale float64
 
 	Steps         int
 	X, Y          float64
@@ -199,7 +217,8 @@ type Mandel struct {
 
 func NewMandel(w, h int) *Mandel {
 	m := &Mandel{
-		magMap: make([][]float64, h),
+		magMap:    make([][]float64, h),
+		zoomScale: 1.1,
 
 		Steps:     100,
 		X:         -2.5,
@@ -212,6 +231,15 @@ func NewMandel(w, h int) *Mandel {
 		m.magMap[j] = make([]float64, w)
 	}
 	return m
+}
+
+func (m *Mandel) setCentre(x, y float64) {
+	m.X = x - (m.Width / 2)
+	m.Y = y - (m.Height / 2)
+}
+
+func (m *Mandel) getCentre() (float64, float64) {
+	return m.X + (m.Width / 2), m.Y + (m.Height / 2)
 }
 
 func (m *Mandel) calcPoint(x, y float64) float64 {

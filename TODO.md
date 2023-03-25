@@ -19,8 +19,8 @@ DONE - use xlo + xwidth instead of xlo and xhi (better update behaviour)
 - respond to mouse clicks
     - left click to recentre
 
-- add zoom button + and -
-    - also left/right/up/down?
+DONE - add zoom button + and -
+    NO - also left/right/up/down?
 
 - set pixel w+h based on window size
 
