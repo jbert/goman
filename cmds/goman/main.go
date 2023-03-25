@@ -77,29 +77,41 @@ func main() {
 }
 
 func makeUIControls(m *Mandel) fyne.CanvasObject {
-	var items []fyne.CanvasObject
 
-	items = append(items, widget.NewLabel("Settings"))
+	formData := binding.BindStruct(m)
+	keys := formData.Keys()
+	items := make([]*widget.FormItem, 0)
 
-	xloEntry := widget.NewEntryWithData(binding.FloatToString(binding.BindFloat(&(m.Xlo))))
-	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("xlo"), xloEntry))
+	for _, k := range keys {
+		data, err := formData.GetItem(k)
+		if err != nil {
+			items = append(items, widget.NewFormItem(k, widget.NewLabel(err.Error())))
+		} else {
+			items = append(items, widget.NewFormItem(k, createBoundItem(data)))
+		}
+	}
 
-	xhiEntry := widget.NewEntryWithData(binding.FloatToString(binding.BindFloat(&(m.Xhi))))
-	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("xhi"), xhiEntry))
+	form := widget.NewForm(items...)
 
-	yloEntry := widget.NewEntryWithData(binding.FloatToString(binding.BindFloat(&(m.Ylo))))
-	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("ylo"), yloEntry))
+	return form
+}
 
-	yhiEntry := widget.NewEntryWithData(binding.FloatToString(binding.BindFloat(&(m.Yhi))))
-	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("yhi"), yhiEntry))
-
-	thresholdEntry := widget.NewEntryWithData(binding.FloatToString(binding.BindFloat(&(m.Threshold))))
-	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("threshold"), thresholdEntry))
-
-	stepsEntry := widget.NewEntryWithData(binding.IntToString(binding.BindInt(&(m.Steps))))
-	items = append(items, container.New(layout.NewHBoxLayout(), widget.NewLabel("steps"), stepsEntry))
-
-	return container.New(layout.NewVBoxLayout(), items...)
+func createBoundItem(v binding.DataItem) fyne.CanvasObject {
+	switch val := v.(type) {
+	case binding.Bool:
+		return widget.NewCheckWithData("", val)
+	case binding.Float:
+		return widget.NewEntryWithData(binding.FloatToString(val))
+		//		s := widget.NewSliderWithData(0, 1, val)
+		//		s.Step = 0.01
+		//		return s
+	case binding.Int:
+		return widget.NewEntryWithData(binding.IntToString(val))
+	case binding.String:
+		return widget.NewEntryWithData(val)
+	default:
+		return widget.NewLabel("")
+	}
 }
 
 func widthHeight(img image.Image) (int, int) {
@@ -137,7 +149,7 @@ func (m *Mandel) Draw(animTick, tickMax int, img *image.RGBA) {
 
 	for i := 0; i < w; i++ {
 		for j := 0; j < h; j++ {
-			c := magnitudeToColour(animTick, tickMax, m.MagMap[j][i])
+			c := magnitudeToColour(animTick, tickMax, m.magMap[j][i])
 			img.Set(i, j, c)
 		}
 	}
@@ -148,8 +160,8 @@ func (m *Mandel) UpdateMagMap(animTick, tickMax int) {
 	//	defer func() {
 	//		fmt.Printf("Update took %s\n", time.Since(start))
 	//	}()
-	h := len(m.MagMap)
-	w := len(m.MagMap[0])
+	h := len(m.magMap)
+	w := len(m.magMap[0])
 
 	xw := m.Xhi - m.Xlo
 	yw := m.Yhi - m.Ylo
@@ -162,7 +174,7 @@ func (m *Mandel) UpdateMagMap(animTick, tickMax int) {
 			y := m.Ylo + (yw * float64(j) / float64(h))
 			for i := 0; i < w; i++ {
 				x := m.Xlo + (xw * float64(i) / float64(w))
-				m.MagMap[j][i] = m.calcPoint(x, y)
+				m.magMap[j][i] = m.calcPoint(x, y)
 			}
 			wg.Done()
 		}()
@@ -171,7 +183,7 @@ func (m *Mandel) UpdateMagMap(animTick, tickMax int) {
 }
 
 type Mandel struct {
-	MagMap [][]float64
+	magMap [][]float64
 
 	Steps     int
 	Xlo, Xhi  float64
@@ -181,7 +193,7 @@ type Mandel struct {
 
 func NewMandel(w, h int) *Mandel {
 	m := &Mandel{
-		MagMap: make([][]float64, h),
+		magMap: make([][]float64, h),
 
 		Steps:     100,
 		Xlo:       -2.5,
@@ -191,7 +203,7 @@ func NewMandel(w, h int) *Mandel {
 		Threshold: 1000,
 	}
 	for j := 0; j < h; j++ {
-		m.MagMap[j] = make([]float64, w)
+		m.magMap[j] = make([]float64, w)
 	}
 	return m
 }

@@ -2,6 +2,16 @@ DONE - use magnitude for colour scaling
 
 DONE - add double-buffering for image update
 
+DONE - justify the labels on the entry boxes
+
+- move UI values into an opts structure?
+    - add tick to the opts structure
+    - make mandel reference it
+
+- use xlo + xwidth instead of xlo and xhi (better update behaviour)
+
+- try running on mobile and/or wasm
+
 - provide some control (or presets) for colour animation
 
 - show magnitude at mouse co-ords
