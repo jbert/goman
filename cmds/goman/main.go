@@ -19,6 +19,28 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+type tappableCanvasImage struct {
+	widget.BaseWidget
+	img      *canvas.Image
+	onTapped func(e *fyne.PointEvent)
+}
+
+func NewTappableCanvasImage(img *canvas.Image) *tappableCanvasImage {
+	w := &tappableCanvasImage{BaseWidget: widget.BaseWidget{}, img: img}
+	w.ExtendBaseWidget(w)
+	return w
+}
+
+func (tci *tappableCanvasImage) CreateRenderer() fyne.WidgetRenderer {
+	return widget.NewSimpleRenderer(tci.img)
+}
+
+func (tci *tappableCanvasImage) Tapped(e *fyne.PointEvent) {
+	if tci.onTapped != nil {
+		tci.onTapped(e)
+	}
+}
+
 func main() {
 	a := app.New()
 
@@ -31,14 +53,14 @@ func main() {
 	imgs[1] = makeImage(w, h)
 	currentImg := 0
 
-	canvasImages := make([]*canvas.Image, 2)
-	canvasImages[0] = canvas.NewImageFromImage(imgs[0])
-	// Unclear why setting FillMode doesn't achieve this
-	canvasImages[0].SetMinSize(fyne.Size{float32(w), float32(h)})
-	//	canvasImage.FillMode = canvas.ImageFillOriginal
-	canvasImages[1] = canvas.NewImageFromImage(imgs[1])
-	canvasImages[1].SetMinSize(fyne.Size{float32(w), float32(h)})
+	canvasImages := make([]*tappableCanvasImage, 2)
+
+	canvasImages[0] = NewTappableCanvasImage(canvas.NewImageFromImage(imgs[0]))
+	canvasImages[0].img.SetMinSize(fyne.Size{float32(w), float32(h)})
 	canvasImages[0].Show()
+
+	canvasImages[1] = NewTappableCanvasImage(canvas.NewImageFromImage(imgs[1]))
+	canvasImages[1].img.SetMinSize(fyne.Size{float32(w), float32(h)})
 	canvasImages[1].Hide()
 
 	m := NewMandel(w, h)

@@ -4,6 +4,10 @@ DONE - add double-buffering for image update
 
 DONE - justify the labels on the entry boxes
 
+- move to using canvas.Raster
+    "If you wish to render a pixel-specific image please use canvas.Raster -
+    everything else is scaled according to device and user preference."
+
 - move UI values into an opts structure?
     - add tick to the opts structure
     - make mandel reference it
