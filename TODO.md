@@ -1,3 +1,6 @@
+DONE - move to Raster before adding tap
+    - may sort out coord transformations
+
 DONE - use magnitude for colour scaling
 
 DONE - add double-buffering for image update

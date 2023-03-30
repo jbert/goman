@@ -19,25 +19,25 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-type tappableCanvasImage struct {
+type tappableRasterImage struct {
 	widget.BaseWidget
 	img      *canvas.Image
 	onTapped func(e *fyne.PointEvent)
 }
 
-func NewTappableCanvasImage(img *canvas.Image) *tappableCanvasImage {
-	w := &tappableCanvasImage{BaseWidget: widget.BaseWidget{}, img: img}
+func NewTappableRasterImage(img *canvas.Image) *tappableRasterImage {
+	w := &tappableRasterImage{BaseWidget: widget.BaseWidget{}, img: img}
 	w.ExtendBaseWidget(w)
 	return w
 }
 
-func (tci *tappableCanvasImage) CreateRenderer() fyne.WidgetRenderer {
-	return widget.NewSimpleRenderer(tci.img)
+func (tri *tappableRasterImage) CreateRenderer() fyne.WidgetRenderer {
+	return widget.NewSimpleRenderer(tri.img)
 }
 
-func (tci *tappableCanvasImage) Tapped(e *fyne.PointEvent) {
-	if tci.onTapped != nil {
-		tci.onTapped(e)
+func (tri *tappableRasterImage) Tapped(e *fyne.PointEvent) {
+	if tri.onTapped != nil {
+		tri.onTapped(e)
 	}
 }
 
@@ -53,22 +53,22 @@ func main() {
 	imgs[1] = makeImage(w, h)
 	currentImg := 0
 
-	canvasImages := make([]*tappableCanvasImage, 2)
+	rasterImages := make([]*tappableRasterImage, 2)
 
-	canvasImages[0] = NewTappableCanvasImage(canvas.NewImageFromImage(imgs[0]))
-	canvasImages[0].img.SetMinSize(fyne.Size{float32(w), float32(h)})
-	canvasImages[0].Show()
+	rasterImages[0] = NewTappableRasterImage(canvas.NewImageFromImage(imgs[0]))
+	rasterImages[0].img.SetMinSize(fyne.Size{float32(w), float32(h)})
+	rasterImages[0].Show()
 
-	canvasImages[1] = NewTappableCanvasImage(canvas.NewImageFromImage(imgs[1]))
-	canvasImages[1].img.SetMinSize(fyne.Size{float32(w), float32(h)})
-	canvasImages[1].Hide()
+	rasterImages[1] = NewTappableRasterImage(canvas.NewImageFromImage(imgs[1]))
+	rasterImages[1].img.SetMinSize(fyne.Size{float32(w), float32(h)})
+	rasterImages[1].Hide()
 
 	m := NewMandel(w, h)
 	uiControls := makeUIControls(m)
 
-	ui := container.New(layout.NewHBoxLayout(), canvasImages[0], canvasImages[1], uiControls)
+	ui := container.New(layout.NewHBoxLayout(), rasterImages[0], rasterImages[1], uiControls)
 
-	tickDur := 10 * time.Millisecond
+	tickDur := 50 * time.Millisecond
 	ticker := time.NewTicker(tickDur)
 
 	win := a.NewWindow(title)
@@ -86,8 +86,8 @@ func main() {
 			clearImage(imgs[currentImg])
 			m.Draw(animTick, tickMax, imgs[currentImg])
 
-			canvasImages[lastImg].Hide()
-			canvasImages[currentImg].Show()
+			rasterImages[lastImg].Hide()
+			rasterImages[currentImg].Show()
 			ui.Refresh()
 			animTick = (animTick + 1) % tickMax
 			<-ch
