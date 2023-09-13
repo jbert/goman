@@ -22,7 +22,7 @@ import (
 type tappableRasterImage struct {
 	widget.BaseWidget
 	img      *canvas.Image
-	onTapped func(e *fyne.PointEvent)
+	onTapped func(x, y int)
 }
 
 func NewTappableRasterImage(img *canvas.Image) *tappableRasterImage {
@@ -35,9 +35,15 @@ func (tri *tappableRasterImage) CreateRenderer() fyne.WidgetRenderer {
 	return widget.NewSimpleRenderer(tri.img)
 }
 
+func (tri *tappableRasterImage) SetTapped(f func(x, y int)) {
+	tri.onTapped = f
+}
+
 func (tri *tappableRasterImage) Tapped(e *fyne.PointEvent) {
+	//	size := tri.Size()
+	fmt.Printf("Tapped!: %+v\n", e)
 	if tri.onTapped != nil {
-		tri.onTapped(e)
+		tri.onTapped(int(e.AbsolutePosition.X), int(e.AbsolutePosition.Y))
 	}
 }
 
@@ -53,18 +59,20 @@ func main() {
 	imgs[1] = makeImage(w, h)
 	currentImg := 0
 
+	m := NewMandel(w, h)
+	uiControls := makeUIControls(m)
+
 	rasterImages := make([]*tappableRasterImage, 2)
 
 	rasterImages[0] = NewTappableRasterImage(canvas.NewImageFromImage(imgs[0]))
 	rasterImages[0].img.SetMinSize(fyne.Size{float32(w), float32(h)})
 	rasterImages[0].Show()
+	rasterImages[0].SetTapped(m.OnTap)
 
 	rasterImages[1] = NewTappableRasterImage(canvas.NewImageFromImage(imgs[1]))
 	rasterImages[1].img.SetMinSize(fyne.Size{float32(w), float32(h)})
 	rasterImages[1].Hide()
-
-	m := NewMandel(w, h)
-	uiControls := makeUIControls(m)
+	rasterImages[1].SetTapped(m.OnTap)
 
 	ui := container.New(layout.NewHBoxLayout(), rasterImages[0], rasterImages[1], uiControls)
 
@@ -235,6 +243,9 @@ type Mandel struct {
 	X, Y          float64
 	Width, Height float64
 	Threshold     float64
+
+	PosX, PosY int
+	PosMag     float64
 }
 
 func NewMandel(w, h int) *Mandel {
@@ -248,11 +259,22 @@ func NewMandel(w, h int) *Mandel {
 		Y:         -1.5,
 		Height:    3.0,
 		Threshold: 1000,
+
+		PosX:   0,
+		PosY:   0,
+		PosMag: 0,
 	}
 	for j := 0; j < h; j++ {
 		m.magMap[j] = make([]float64, w)
 	}
 	return m
+}
+
+func (m *Mandel) OnTap(x, y int) {
+	fmt.Printf("Tapped: x %d y %d\n", x, y)
+	m.PosX = x
+	m.PosY = y
+	m.PosMag = m.magMap[y][x]
 }
 
 func (m *Mandel) setCentre(x, y float64) {
