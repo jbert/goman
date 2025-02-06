@@ -64,12 +64,12 @@ func main() {
 	rasterImages := make([]*tappableRasterImage, 2)
 
 	rasterImages[0] = NewTappableRasterImage(canvas.NewImageFromImage(imgs[0]))
-	rasterImages[0].img.SetMinSize(fyne.Size{float32(w), float32(h)})
+	rasterImages[0].img.SetMinSize(fyne.Size{Width: float32(w), Height: float32(h)})
 	rasterImages[0].Show()
 	rasterImages[0].SetTapped(m.OnTap)
 
 	rasterImages[1] = NewTappableRasterImage(canvas.NewImageFromImage(imgs[1]))
-	rasterImages[1].img.SetMinSize(fyne.Size{float32(w), float32(h)})
+	rasterImages[1].img.SetMinSize(fyne.Size{Width: float32(w), Height: float32(h)})
 	rasterImages[1].Hide()
 	rasterImages[1].SetTapped(m.OnTap)
 
@@ -84,7 +84,7 @@ func main() {
 
 	tickMax := 100
 	animTick := 0
-	animateImage := func(w, h int, ch <-chan time.Time) {
+	animateImage := func(ch <-chan time.Time) {
 		for {
 			lastImg := currentImg
 
@@ -100,7 +100,7 @@ func main() {
 			<-ch
 		}
 	}
-	go animateImage(w, h, ticker.C)
+	go animateImage(ticker.C)
 
 	win.ShowAndRun()
 }
@@ -161,5 +161,5 @@ func makeImage(w, h int) *image.RGBA {
 }
 
 func clearImage(img *image.RGBA) {
-	draw.Draw(img, img.Bounds(), image.Black, image.ZP, draw.Src)
+	draw.Draw(img, img.Bounds(), image.Black, image.Point{}, draw.Src)
 }
