@@ -243,9 +243,6 @@ type Mandel struct {
 	X, Y          float64
 	Width, Height float64
 	Threshold     float64
-
-	PosX, PosY int
-	PosMag     float64
 }
 
 func NewMandel(w, h int) *Mandel {
@@ -259,10 +256,6 @@ func NewMandel(w, h int) *Mandel {
 		Y:         -1.5,
 		Height:    3.0,
 		Threshold: 1000,
-
-		PosX:   0,
-		PosY:   0,
-		PosMag: 0,
 	}
 	for j := 0; j < h; j++ {
 		m.magMap[j] = make([]float64, w)
@@ -272,9 +265,6 @@ func NewMandel(w, h int) *Mandel {
 
 func (m *Mandel) OnTap(x, y int) {
 	fmt.Printf("Tapped: x %d y %d\n", x, y)
-	m.PosX = x
-	m.PosY = y
-	m.PosMag = m.magMap[y][x]
 }
 
 func (m *Mandel) setCentre(x, y float64) {
