@@ -6,14 +6,26 @@ DONE - add double-buffering for image update
 
 DONE - justify the labels on the entry boxes
 
-- finish tap-to-move
+- DONE respond to mouse clicks
+
+  - DONE left click to recentre
+
+- DONE finish tap-to-move
 
   - DONE remove PosX/PosY/PosMag
-  - add mandel x, y, width, height (float/complex)
-  - add 'onTap' normalised to 0.0 -> 1.0
+  - DONE add mandel x, y, width, height (float/complex)
+  - DONE add 'onTap' normalised to 0.0 -> 1.0
     - in image space, convert tap event to 0.0->1.0 space
     - in mandel, convert tap event to calculated (x,y) space
     - recentre to that
+
+- BUG: ? some clicks don't register?
+
+- DONE break types out into files/pkgs
+
+- DONE add pt/rect types
+
+- update fyne controls to be more ergonmic (sliders etc)
 
 - move to using canvas.Raster
   "If you wish to render a pixel-specific image please use canvas.Raster -
@@ -30,9 +42,6 @@ DONE - use xlo + xwidth instead of xlo and xhi (better update behaviour)
 - provide some control (or presets) for colour animation
 
 - show magnitude at mouse co-ords
-
-- respond to mouse clicks
-  - left click to recentre
 
 DONE - add zoom button + and -
 NO - also left/right/up/down?
