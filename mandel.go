@@ -128,8 +128,8 @@ func magnitudeToColour(animTick, tickMax int, mag float64) color.Color {
 	f := math.Min(mag, scale) // 0 -> scale
 	umax := 255.0 / scale
 
-	cr := uint8(128 * animTick)
-	cb := uint8(10 * (1.0 - animTick))
+	cr := uint8(128 * animF)
+	cb := uint8(10 * (1.0 - animF))
 	y := uint8(umax * f)
 	return color.YCbCr{y, cb, cr}
 }

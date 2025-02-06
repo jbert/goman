@@ -27,7 +27,7 @@ DONE - justify the labels on the entry boxes
 
 - DONE hook mouse wheel scroll for zoom
 
-- fix flicker
+- DONE fix flicker
 
 - DONE fix aspect ratio (e.g. 1920x1080)
 
