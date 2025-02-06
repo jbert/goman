@@ -29,7 +29,7 @@ DONE - justify the labels on the entry boxes
 
 - fix flicker
 
-- fix aspect ratio (e.g. 1920x1080)
+- DONE fix aspect ratio (e.g. 1920x1080)
 
 - update fyne controls to be more ergonmic (sliders etc)
 

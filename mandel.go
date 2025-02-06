@@ -19,8 +19,12 @@ type Mandel struct {
 }
 
 func NewMandel(w, h int) *Mandel {
-	topLeft := NewPt(-2.5, -1.5)
-	botRight := NewPt(1.0, 1.5)
+	//	topLeft := NewPt(-2.5, -1.5)
+	//	botRight := NewPt(1.0, 1.5)
+	centre := NewPt(0.0, 0.0)
+	xWidth := 2.0
+	yHeight := float64(h) / float64(w) * xWidth
+	size := NewPt(xWidth, yHeight)
 
 	m := &Mandel{
 		magMap:    make([][]float64, h),
@@ -28,7 +32,7 @@ func NewMandel(w, h int) *Mandel {
 
 		Steps: 100,
 
-		View:      NewRectCorners(topLeft, botRight),
+		View:      NewRectCentered(centre, size),
 		Threshold: 1000,
 	}
 	for j := 0; j < h; j++ {
