@@ -18,8 +18,9 @@ import (
 
 type tappableRasterImage struct {
 	widget.BaseWidget
-	img      *canvas.Image
-	onTapped func(x, y float64)
+	img        *canvas.Image
+	onTapped   func(x, y float64)
+	onScrolled func(x, y, dx, dy float64)
 }
 
 func NewTappableRasterImage(img *canvas.Image) *tappableRasterImage {
@@ -30,6 +31,10 @@ func NewTappableRasterImage(img *canvas.Image) *tappableRasterImage {
 
 func (tri *tappableRasterImage) CreateRenderer() fyne.WidgetRenderer {
 	return widget.NewSimpleRenderer(tri.img)
+}
+
+func (tri *tappableRasterImage) SetScrolled(f func(x, y, dx, dy float64)) {
+	tri.onScrolled = f
 }
 
 func (tri *tappableRasterImage) SetTapped(f func(x, y float64)) {
@@ -46,10 +51,23 @@ func (tri *tappableRasterImage) Tapped(e *fyne.PointEvent) {
 	}
 }
 
+func (tri *tappableRasterImage) Scrolled(e *fyne.ScrollEvent) {
+	log.Printf("Scrolled!: %+v", e)
+	if tri.onScrolled != nil {
+		xProp := float64(e.AbsolutePosition.X) / float64(tri.img.Size().Width)
+		yProp := float64(e.AbsolutePosition.Y) / float64(tri.img.Size().Height)
+		dxProp := float64(e.Scrolled.DX) / float64(tri.img.Size().Width)
+		dyProp := float64(e.Scrolled.DY) / float64(tri.img.Size().Height)
+		tri.onScrolled(xProp, yProp, dxProp, dyProp)
+	}
+}
+
 func main() {
 	a := app.New()
 
 	title := "Go, Man"
+	//	w := 1920
+	//	h := 1080
 	w := 640
 	h := 480
 
@@ -67,11 +85,13 @@ func main() {
 	rasterImages[0].img.SetMinSize(fyne.Size{Width: float32(w), Height: float32(h)})
 	rasterImages[0].Show()
 	rasterImages[0].SetTapped(m.OnTap)
+	rasterImages[0].SetScrolled(m.OnScroll)
 
 	rasterImages[1] = NewTappableRasterImage(canvas.NewImageFromImage(imgs[1]))
 	rasterImages[1].img.SetMinSize(fyne.Size{Width: float32(w), Height: float32(h)})
 	rasterImages[1].Hide()
 	rasterImages[1].SetTapped(m.OnTap)
+	rasterImages[1].SetScrolled(m.OnScroll)
 
 	ui := container.New(layout.NewHBoxLayout(), rasterImages[0], rasterImages[1], uiControls)
 

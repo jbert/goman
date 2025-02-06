@@ -25,6 +25,12 @@ DONE - justify the labels on the entry boxes
 
 - DONE add pt/rect types
 
+- DONE hook mouse wheel scroll for zoom
+
+- fix flicker
+
+- fix aspect ratio (e.g. 1920x1080)
+
 - update fyne controls to be more ergonmic (sliders etc)
 
 - move to using canvas.Raster
@@ -45,8 +51,6 @@ DONE - use xlo + xwidth instead of xlo and xhi (better update behaviour)
 
 DONE - add zoom button + and -
 NO - also left/right/up/down?
-
-- hook mouse wheel scroll for zoom
 
 - set pixel w+h based on window size
 

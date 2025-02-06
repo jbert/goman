@@ -24,7 +24,7 @@ func NewMandel(w, h int) *Mandel {
 
 	m := &Mandel{
 		magMap:    make([][]float64, h),
-		zoomScale: 1.1,
+		zoomScale: 1.2,
 
 		Steps: 100,
 
@@ -35,6 +35,19 @@ func NewMandel(w, h int) *Mandel {
 		m.magMap[j] = make([]float64, w)
 	}
 	return m
+}
+
+func (m *Mandel) OnScroll(xProp, yProp, dxProp, dyProp float64) {
+	log.Printf("Scrolled: x %v y %v dx %v dy %v", xProp, yProp, dxProp, dyProp)
+	log.Printf("Scrolled: Old View: %+v", m.View)
+	if dyProp > 0 {
+		newCentre := m.proportionToPt(xProp, yProp)
+		m.setCentre(newCentre)
+		m.ZoomIn()
+	} else {
+		m.ZoomOut()
+	}
+	log.Printf("Scrolled: New View: %+v", m.View)
 }
 
 func (m *Mandel) OnTap(xProportion, yProportion float64) {
